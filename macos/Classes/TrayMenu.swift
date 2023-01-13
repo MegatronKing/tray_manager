@@ -37,19 +37,12 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
                 menuItem = NSMenuItem.separator()
             } else {
                 menuItem = NSMenuItem()
-            }
-            
-            menuItem.tag = id
-            menuItem.title = label
-            menuItem.toolTip = toolTip
-            menuItem.isEnabled = !disabled
-            menuItem.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
-            menuItem.target = self
-            
-            switch (type) {
-            case "separator":
-                break
-            case "submenu":
+                menuItem.tag = id
+                menuItem.title = label
+                menuItem.toolTip = toolTip
+                menuItem.isEnabled = !disabled
+                menuItem.action = !disabled ? #selector(statusItemMenuButtonClicked) : nil
+                menuItem.target = self
                 if let submenuDict = itemDict["submenu"] as? NSDictionary {
                     let submenu = TrayMenu(submenuDict as! [String : Any])
                     submenu.onMenuItemClick = {
@@ -58,16 +51,7 @@ public class TrayMenu: NSMenu, NSMenuDelegate {
                     }
                     self.setSubmenu(submenu, for: menuItem)
                 }
-                break
-            case "checkbox":
-                if (checked == nil) {
-                    menuItem.state = .mixed
-                } else {
-                    menuItem.state = checked! ? .on : .off
-                }
-                break
-            default:
-                break
+                menuItem.state = checked ?? false ? .on : .off
             }
             self.addItem(menuItem)
         }
