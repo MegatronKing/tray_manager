@@ -147,13 +147,12 @@ void TrayManagerPlugin::_CreateMenu(HMENU menu, flutter::EncodableMap args) {
     if (type.compare("separator") == 0) {
       AppendMenuW(menu, MF_SEPARATOR, item_id, NULL);
     } else {
-      if (type.compare("checkbox") == 0) {
-        if (checked == nullptr) {
-          // skip
-        } else {
-          uFlags |= (*checked == true ? MF_CHECKED : MF_UNCHECKED);
-        }
-      } else if (type.compare("submenu") == 0) {
+      if (checked == nullptr) {
+        // skip
+      } else {
+        uFlags |= (*checked == true ? MF_CHECKED : MF_UNCHECKED);
+      }
+      if (item_map.count(flutter::EncodableValue("submenu"))) {
         uFlags |= MF_POPUP;
         HMENU sub_menu = ::CreatePopupMenu();
         _CreateMenu(sub_menu, std::get<flutter::EncodableMap>(item_map.at(
