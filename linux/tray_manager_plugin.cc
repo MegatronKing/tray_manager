@@ -69,28 +69,26 @@ GtkWidget* _create_menu(FlValue* args) {
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),
                             gtk_separator_menu_item_new());
     } else {
-      GtkWidget* item = gtk_check_menu_item_new_with_label(label);
-
+      const auto checked_value =
+          fl_value_lookup_string(item_value, "checked");
+      const auto submenu_value =
+          fl_value_lookup_string(item_value, "submenu");
+      GtkWidget* item;
+      if (submenu_value) {
+        item = gtk_menu_item_new_with_label(label);
+        GtkWidget* sub_menu = _create_menu(submenu_value);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), sub_menu);
+      } else if (checked_value && fl_value_get_bool(checked_value)) {
+        item = gtk_check_menu_item_new_with_label(label);
+        gtk_check_menu_item_set_active((GtkCheckMenuItem*)item, true);
+      } else {
+        item = gtk_menu_item_new_with_label(label);
+      }
       if (disabled) {
         gtk_widget_set_sensitive(item, FALSE);
       }
-
-      const auto checked_value =
-          fl_value_lookup_string(item_value, "checked");
-      if (checked_value) {
-        const auto checked = fl_value_get_bool(checked_value);
-        gtk_check_menu_item_set_active((GtkCheckMenuItem*)item, checked);
-      }
-      const auto submenu_value =
-          fl_value_lookup_string(item_value, "submenu");
-      if (submenu_value) {
-        GtkWidget* sub_menu = _create_menu(submenu_value);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), sub_menu);
-      }
-
       g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(_on_activate),
                        GINT_TO_POINTER(item_id));
-
       gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
     }
   }
