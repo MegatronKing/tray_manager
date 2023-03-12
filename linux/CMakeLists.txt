@@ -19,8 +19,8 @@ target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
-target_link_libraries(${PLUGIN_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libayatana-appindicator3.so.1")
-target_link_libraries(${PLUGIN_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/libayatana-indicator3.so.7")
+target_link_libraries(${PLUGIN_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libayatana-appindicator3.so.1")
+target_link_libraries(${PLUGIN_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libayatana-indicator3.so.7")
 
 # List of absolute paths to libraries that should be bundled with the plugin
 set(tray_manager_bundled_libraries
