@@ -69,23 +69,22 @@ GtkWidget* _create_menu(FlValue* args) {
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),
                             gtk_separator_menu_item_new());
     } else {
-      GtkWidget* item = gtk_menu_item_new_with_label(label);
+      GtkWidget* item = gtk_check_menu_item_set_active(label);
 
       if (disabled) {
         gtk_widget_set_sensitive(item, FALSE);
       }
 
-      if (strcmp(type, "checkbox") == 0) {
-        item = gtk_check_menu_item_new_with_label(label);
-        const auto checked_value =
-            fl_value_lookup_string(item_value, "checked");
-        if (checked_value != nullptr) {
-          const auto checked = fl_value_get_bool(checked_value);
-          gtk_check_menu_item_set_active((GtkCheckMenuItem*)item, checked);
-        }
-      } else if (strcmp(type, "submenu") == 0) {
-        GtkWidget* sub_menu =
-            _create_menu(fl_value_lookup_string(item_value, "submenu"));
+      const auto checked_value =
+          fl_value_lookup_string(item_value, "checked");
+      if (checked_value) {
+        const auto checked = fl_value_get_bool(checked_value);
+        gtk_check_menu_item_set_active((GtkCheckMenuItem*)item, checked);
+      }
+      const auto submenu_value =
+          fl_value_lookup_string(item_value, "submenu");
+      if (submenu_value) {
+        GtkWidget* sub_menu = _create_menu(submenu_value);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), sub_menu);
       }
 
