@@ -69,7 +69,7 @@ GtkWidget* _create_menu(FlValue* args) {
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),
                             gtk_separator_menu_item_new());
     } else {
-      GtkWidget* item = gtk_check_menu_item_set_active(label);
+      GtkWidget* item = gtk_check_menu_item_new_with_label(label);
 
       if (disabled) {
         gtk_widget_set_sensitive(item, FALSE);
