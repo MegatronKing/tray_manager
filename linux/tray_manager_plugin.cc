@@ -1,14 +1,10 @@
 #include "include/tray_manager/tray_manager_plugin.h"
+#include "include/app-indicator/app-indicator.h"
 
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
 #include <sys/utsname.h>
 
-#ifdef HAVE_AYATANA
-#include <libayatana-appindicator/app-indicator.h>
-#else
-#include <libappindicator/app-indicator.h>
-#endif
 #include <algorithm>
 #include <cstring>
 #include <map>
