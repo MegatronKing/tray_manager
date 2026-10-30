@@ -26,5 +26,7 @@ target_link_libraries(${PLUGIN_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libayat
 set(tray_manager_bundled_libraries
   "${CMAKE_CURRENT_SOURCE_DIR}/libayatana-appindicator3.so.1"
   "${CMAKE_CURRENT_SOURCE_DIR}/libayatana-indicator3.so.7"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libdbusmenu-glib.so.4"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libdbusmenu-gtk3.so.4"
   PARENT_SCOPE
 )
