@@ -46,9 +46,9 @@ class TrayManagerPlugin : public flutter::Plugin {
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> g_converter;
 
   flutter::PluginRegistrarWindows* registrar;
-  NOTIFYICONDATA nid;
-  NOTIFYICONIDENTIFIER niif;
-  HMENU hMenu;
+  NOTIFYICONDATA nid = {};
+  NOTIFYICONIDENTIFIER niif = {};
+  HMENU hMenu = nullptr;
   bool tray_icon_setted = false;
 
   // The ID of the WindowProc delegate registration.
@@ -122,7 +122,7 @@ void TrayManagerPlugin::_CreateMenu(HMENU menu, flutter::EncodableMap args) {
   int count = GetMenuItemCount(menu);
   for (int i = 0; i < count; i++) {
     // always remove at 0 because they shift every time
-    RemoveMenu(menu, 0, MF_BYPOSITION);
+    DeleteMenu(menu, 0, MF_BYPOSITION);
   }
 
   for (flutter::EncodableValue item_value : items) {
@@ -173,6 +173,12 @@ std::optional<LRESULT> TrayManagerPlugin::HandleWindowProc(HWND hWnd,
     if (tray_icon_setted) {
       Shell_NotifyIcon(NIM_DELETE, &nid);
       DestroyIcon(nid.hIcon);
+      nid.hIcon = nullptr;
+      tray_icon_setted = false;
+    }
+    if (hMenu != nullptr) {
+      DestroyMenu(hMenu);
+      hMenu = nullptr;
     }
   } else if (message == WM_COMMAND) {
     flutter::EncodableMap eventData = flutter::EncodableMap();
@@ -209,6 +215,11 @@ void TrayManagerPlugin::Destroy(
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
   Shell_NotifyIcon(NIM_DELETE, &nid);
   DestroyIcon(nid.hIcon);
+  nid.hIcon = nullptr;
+  if (hMenu != nullptr) {
+    DestroyMenu(hMenu);
+    hMenu = nullptr;
+  }
   tray_icon_setted = false;
 
   result->Success(flutter::EncodableValue(true));
@@ -231,8 +242,12 @@ void TrayManagerPlugin::SetIcon(
                 GetSystemMetrics(SM_CYSMICON), LR_LOADFROMFILE));
 
   if (tray_icon_setted) {
+    HICON old_icon = nid.hIcon;
     nid.hIcon = hIcon;
     Shell_NotifyIcon(NIM_MODIFY, &nid);
+    if (old_icon != nullptr) {
+      DestroyIcon(old_icon);
+    }
   } else {
     nid.cbSize = sizeof(NOTIFYICONDATA);
     nid.hWnd = GetMainWindow();
@@ -240,7 +255,6 @@ void TrayManagerPlugin::SetIcon(
     nid.hIcon = hIcon;
     nid.uFlags = NIF_MESSAGE | NIF_ICON;
     Shell_NotifyIcon(NIM_ADD, &nid);
-    hMenu = CreatePopupMenu();
   }
 
   niif.cbSize = sizeof(NOTIFYICONIDENTIFIER);
@@ -277,7 +291,9 @@ void TrayManagerPlugin::SetContextMenu(
   const flutter::EncodableMap& args =
       std::get<flutter::EncodableMap>(*method_call.arguments());
 
-  hMenu = CreatePopupMenu();
+  if (hMenu == nullptr) {
+    hMenu = CreatePopupMenu();
+  }
   _CreateMenu(hMenu, std::get<flutter::EncodableMap>(
                          args.at(flutter::EncodableValue("menu"))));
 
